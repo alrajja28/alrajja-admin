@@ -15,6 +15,6 @@ Build with the production VITE_CONVEX_URL. Publish dist/ to the gh-pages branch.
 
 ## Current boundaries
 
-Google login remains unavailable until the customer completes the Google Cloud country and OAuth client setup. No paid trial or billing account was enabled.
+Google login uses the customer-owned Firebase project alrajja-club-auth (Spark, no billing). Only Google is enabled. Application data and uploads stay in Convex. src/backend/firebase-config.json contains public web SDK identifiers, not server credentials. Convex verifies the Firebase issuer, project audience, signature, verified email, and Google provider before linking a user.
 
 Ticket submissions are review requests, not paid tickets. This release does not issue admission QR codes or process payments. Live video uses a provided HTTPS/YouTube source or uploaded MP4/WebM; it does not provision a broadcasting service.

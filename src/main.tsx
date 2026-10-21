@@ -2,7 +2,7 @@ import {ConvexError} from 'convex/values';
 import React,{useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import {ConvexReactClient,useQuery,useMutation,useConvexAuth} from 'convex/react';
-import {ConvexAuthProvider,useAuthActions} from '@convex-dev/auth/react';
+import {CustomerAuthProvider,useClubAuthActions} from './backend/CustomerAuth';
 import {anyApi} from 'convex/server';
 import {LayoutDashboard,Newspaper,ShoppingBag,Video,Radio,Users,CalendarDays,Settings,GraduationCap,Plus,Search,LogOut,Save,Upload,Eye,EyeOff,CheckCircle,AlertCircle,X} from 'lucide-react';
 import './style.css';
@@ -23,11 +23,11 @@ const sections:Array<{id:Section;label:string;icon:any;description:string;fields
 const labels:Record<string,string>={jerseys:'أطقم النادي',training:'التدريبات',accessories:'الإكسسوارات',photo:'صورة',video:'فيديو',matches:'المباريات',backstage:'خلف الكواليس',upcoming:'قادمة',live:'مباشرة',finished:'منتهية'};
 function message(error:unknown){return error instanceof ConvexError&&typeof error.data==='string'?error.data:error instanceof Error?error.message:'تعذر إتمام العملية، حاول مرة أخرى';}
 function Admin(){
- const {isLoading,isAuthenticated}=useConvexAuth();const {signIn,signOut}=useAuthActions();
+ const {isLoading,isAuthenticated}=useConvexAuth();const {signIn,signOut}=useClubAuthActions();
  const user=useQuery(api.content.me,isAuthenticated?{}:'skip');
  const authStatus=useQuery(api.content.authStatus,{});
  const [error,setError]=useState('');const [busy,setBusy]=useState(false);
- async function login(){setBusy(true);setError('');try{await signIn('google',{redirectTo:location.origin+import.meta.env.BASE_URL});}catch(e){setError(message(e));setBusy(false);}}
+ async function login(){setBusy(true);setError('');try{await signIn('google',{loginHint:'alrajja28@gmail.com'});}catch(e){setError(message(e));setBusy(false);}}
  if(isLoading||(isAuthenticated&&user===undefined))return <div className="center"><div className="loader"/>جارٍ التحقق من الحساب…</div>;
  if(!isAuthenticated)return <div className="center"><section className="login"><img src={`${import.meta.env.BASE_URL}rajaa-logo.png`} alt="نادي الرجاء العراقي"/><span className="eyebrow">لوحة الإدارة</span><h1>نادي الرجاء العراقي</h1><p>أدر المحتوى، الأسعار، الصور والبث من مكان واحد.</p><button className="primary" disabled={busy||!authStatus?.googleReady} onClick={login}>{busy?'جاري الانتقال…':'المتابعة باستخدام Google'}</button>{error&&<p role="alert" className="error">{error}</p>}{authStatus&&!authStatus.googleReady&&<p className="notice">تسجيل Google قيد التجهيز. ستتاح اللوحة بعد إكمال إعداد الحساب.</p>}<small>الدخول مخصص لحساب إدارة النادي المعتمد.</small></section></div>;
  if(!user?.isAdmin)return <div className="center"><section className="login"><AlertCircle/><h1>الحساب غير مخوّل</h1><p>هذا الحساب مسجل، لكنه لا يملك صلاحية إدارة النادي.</p><button onClick={()=>void signOut()}>الخروج واختيار حساب آخر</button></section></div>;
@@ -74,4 +74,4 @@ function Editor({row,definition,onClose,onSaved}:{row:any;definition:typeof sect
 }
 class ErrorBoundary extends React.Component<{children:React.ReactNode},{failed:boolean}>{state={failed:false};static getDerivedStateFromError(){return{failed:true}}render(){return this.state.failed?<div className="center"><section className="login"><h1>تعذر تحميل لوحة الإدارة</h1><p>تحقق من اتصال الإنترنت ثم أعد المحاولة.</p><button onClick={()=>location.reload()}>إعادة المحاولة</button></section></div>:this.props.children}}
 const convexUrl=import.meta.env.VITE_CONVEX_URL;
-createRoot(document.getElementById('root')!).render(<React.StrictMode><ErrorBoundary>{convexUrl?<ConvexAuthProvider client={new ConvexReactClient(convexUrl)} storageNamespace="alrajja-admin"><Admin/></ConvexAuthProvider>:<div className="center"><section className="login"><h1>لوحة إدارة نادي الرجاء العراقي</h1><p>جارٍ تجهيز الاتصال بخدمات النادي.</p></section></div>}</ErrorBoundary></React.StrictMode>);
+createRoot(document.getElementById('root')!).render(<React.StrictMode><ErrorBoundary>{convexUrl?<CustomerAuthProvider client={new ConvexReactClient(convexUrl)}><Admin/></CustomerAuthProvider>:<div className="center"><section className="login"><h1>لوحة إدارة نادي الرجاء العراقي</h1><p>جارٍ تجهيز الاتصال بخدمات النادي.</p></section></div>}</ErrorBoundary></React.StrictMode>);
