@@ -1,3 +1,4 @@
+import {ConvexError} from 'convex/values';
 import React,{useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import {ConvexReactClient,useQuery,useMutation,useConvexAuth} from 'convex/react';
@@ -20,7 +21,7 @@ const sections:Array<{id:Section;label:string;icon:any;description:string;fields
  {id:'standings',label:'ترتيب الدوري',icon:CalendarDays,description:'ترتيب الفرق ونقاط البطولة',fields:[{key:'p',label:'لعب',type:'number'},{key:'w',label:'فاز',type:'number'},{key:'d',label:'تعادل',type:'number'},{key:'l',label:'خسر',type:'number'},{key:'pts',label:'النقاط',type:'number'}]}, {id:'settings',label:'بيانات النادي',icon:Settings,description:'اسم النادي ووسائل التواصل والنص الرئيسي',fields:[{key:'subtitle',label:'النص الرئيسي'},{key:'phone',label:'رقم الهاتف'},{key:'email',label:'البريد الإلكتروني'},{key:'address',label:'العنوان'}]},
 ];
 const labels:Record<string,string>={jerseys:'أطقم النادي',training:'التدريبات',accessories:'الإكسسوارات',photo:'صورة',video:'فيديو',matches:'المباريات',backstage:'خلف الكواليس',upcoming:'قادمة',live:'مباشرة',finished:'منتهية'};
-function message(error:unknown){return error instanceof Error?error.message:'تعذر إتمام العملية، حاول مرة أخرى';}
+function message(error:unknown){return error instanceof ConvexError&&typeof error.data==='string'?error.data:error instanceof Error?error.message:'تعذر إتمام العملية، حاول مرة أخرى';}
 function Admin(){
  const {isLoading,isAuthenticated}=useConvexAuth();const {signIn,signOut}=useAuthActions();
  const user=useQuery(api.content.me,isAuthenticated?{}:'skip');
